@@ -21,9 +21,17 @@ if($api_key != $key)
 }
 else
 {
- 
+/**parametro m 1 para consultar las deudas de una cliente por documento
+	creación para consultar con la alianza supergiros
+*/ 
 if($params->m  ==  1) {include('../rutas/rutas.php');}  
 
+
+/**
+Paramento m 2 para consultar los pagos del dia
+*/
+if($params->m == 2 ){ include('../rutas/pagosdia.php');}
+if($params->m == 3 ){ include('../rutas/pagosdia.php');}
 }
  
 
