@@ -16,7 +16,7 @@ class Pago extends Config{
     //consultamos todos los contratos activos(1), cortados(2)
     public  function getPagos($fecha){
 
-        $sql ="SELECT pagos.valor_cobro, clientes.celular_a , pagos.id_recibo_caja,  
+        $sql ="SELECT pagos.valor_cobro, clientes.celular_a , pagos.id_recibo_caja, pagos.fechaf,  
 				concat(pagos.id_servicio,'-',pagos.id_recibo_caja) as id
 				FROM pagos
 				INNER JOIN clientes ON clientes.id_cliente = pagos.id_cliente

@@ -17,6 +17,7 @@ class ControllerPagos {
                 $pagosBefore['rc']    = $key->id_recibo_caja;
                 $pagosBefore['valor'] = $key->valor_cobro;
                 $pagosBefore['celular'] = $key->celular_a;
+                $pagosBefore['fecha'] = $key->fechaf;
 
                 array_push($pagosArray['data'], $pagosBefore );
             }
