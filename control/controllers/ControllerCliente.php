@@ -30,6 +30,6 @@ class ControllerCliente {
     }
 
 $run = new ControllerCliente();
-$run->cliente($params->documento);
+$run->cliente($_POST['documento']);
 
 ?>

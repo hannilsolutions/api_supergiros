@@ -51,6 +51,8 @@ conteo de registros para validar con api
     }
 
 $run = new ControllerPagos();
-if($params->m == 3){ $run->countPagos($params->dia);}
-if($params->m == 2){ $run->pagos($params->dia);}
+
+if($_POST['m'] == 3){ $run->countPagos($_POST['dia']);}
+
+if($_POST['m'] == 2){ $run->pagos($_POST['dia']);}
 

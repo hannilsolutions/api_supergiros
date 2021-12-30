@@ -316,7 +316,8 @@ $apiToken = new ApiToken(URL_BASIC_INTERNET, URL_BASIC_CONTROL, USERNAME , PASSW
 
 $token = $apiToken->getToken();
 
-$dia = date("Ymd");
+#$dia = date("Ymd");
+$dia = "20210808";
 #1. CONTAR EN CONTROL MAS LA CANTIDAD DE REGISTROS
 $getCountControl = $apiToken->countControl($dia);
 #2.Contar en cpanel internet la cantidad de registros
@@ -329,6 +330,8 @@ if($getCountInternet == false){
 
 	#consulta pagos de control del dia Ymd
 	$pagosControl = $apiToken->pagosControl($dia);
+
+  if($pagosControl != "sin registros"){
 	#el retorno esta en staclassObject
 	foreach ($pagosControl as $key ) {
 		#almacena en un array temporal 
@@ -344,8 +347,9 @@ if($getCountInternet == false){
         
         #se instancia la funcion de guardar en cpanel internet
         $saveInternet = $apiToken->saveInternet($token , $pagosBefore);
-	}
-}
+	   }
+    }
+  }
 
 #comparar los valores 
 #Despues de haber registros en el día, compara los valores de controlmas con internet 
@@ -357,7 +361,7 @@ if ($getCountControl > $getCountInternet) {
 	$pagosInternet = $apiToken->pagosInternet($token , $dia);
 
 
-
+  if($pagosControl != "sin registros"){
 	#se procede a realizar una consulta de todos los registros
 	$pagosControl = $apiToken->pagosControl($dia);
 	
@@ -386,7 +390,7 @@ if ($getCountControl > $getCountInternet) {
 	}
 
 	
-
+}
 	
 } 
 

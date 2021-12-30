@@ -7,10 +7,10 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Origin: *");
 header("Allow: POST");
  
-$request    = file_get_contents("php://input");
-$params     = json_decode($request);
+#$request    = file_get_contents("php://input");
+#$params     = json_decode($request);
 $api_key    =   'f24f0aaa81db035965e65f60c5e54c41';
-$key       =   $params->key;
+$key       =   $_POST['key'];
  
  
 
@@ -24,14 +24,14 @@ else
 /**parametro m 1 para consultar las deudas de una cliente por documento
 	creación para consultar con la alianza supergiros
 */ 
-if($params->m  ==  1) {include('../rutas/rutas.php');}  
+if($_POST['m']  ==  1) {include('../rutas/rutas.php');}  
 
 
 /**
 Paramento m 2 para consultar los pagos del dia
 */
-if($params->m == 2 ){ include('../rutas/pagosdia.php');}
-if($params->m == 3 ){ include('../rutas/pagosdia.php');}
+if($_POST['m'] == 2 ){ include('../rutas/pagosdia.php');}
+if($_POST['m'] == 3 ){ include('../rutas/pagosdia.php');}
 }
  
 
