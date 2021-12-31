@@ -64,7 +64,7 @@ class ApiToken {
       				'password' => $this->password
       			];
 
-      		$send = $this->sendEndPoint($json , $headers , $method , $url);
+      		$send = $this->sendEndPoint($json , $headers , $method , $url  );
 
       		if($send->getStatusCode() == 200)
       		{
@@ -111,7 +111,7 @@ class ApiToken {
 
   	try {
   		
-  		$send = $this->sendEndPoint($json , $headers , $method , $url);
+  		$send = $this->sendEndPoint($json , $headers , $method , $url  );
 
   		if($send->getStatusCode() == 200)
   		{
@@ -153,7 +153,7 @@ class ApiToken {
 
   	try {
   		
-  		$send = $this->sendEndPoint($json , $headers , $method , $url);
+  		$send = $this->sendEndPoint($json , $headers , $method , $url );
 
   		if($send->getStatusCode() == 200)
   		{
@@ -200,7 +200,7 @@ class ApiToken {
   				$method = 'POST';
   				
   				try{
-  					$send = $this->sendEndPoint($json  , $headers , $method , $url);
+  					$send = $this->sendEndPoint($json  , $headers , $method , $url  );
 
   					if($send->getStatusCode() == 200) {
 
@@ -231,46 +231,48 @@ class ApiToken {
 
   	public function countControl($fecha)
   	{
-  		$url = $this->url_baseControl;
-  		$method = 'POST';
-  		$json = [
-  			'key' => $this->token,
-  			'm' => '3',
-  			'dia' => $fecha
-  		];
-
-  		$send = $this->sendEndPoint($json , $headers = null , $method , $url);
-
-  		if ($send->getStatusCode() == 200) {
-  			
-  			$response  = json_decode($send->getBody()->getContents());
-
-  			return $response->data;
-
-  		}
+      $url = $this->url_baseControl;
+  		  $data = array(
+            "dia"=> $fecha,
+            "key" => $this->token,
+            "m" => 3
+        );
+        $ch =   curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $response = json_decode(curl_exec($ch));
+        curl_close($ch);
+        if($response->success==false) {
+                return false;
+        }else{
+                return $response->data;
+        }
   	}
 
 #consultar pagos del dia en controlmas 
   public function pagosControl($fecha)
   {
-  	$url =  $this->url_baseControl;
-  	$method = 'POST';
-  	$json 	= [
-  		'key' => $this->token,
-  		'm' => '2',
-  		'dia' => $fecha
-  	];
-
-  	$send = $this->sendEndPoint($json , $headers=null, $method , $url);
-  	if($send->getStatusCode() == 200)
-  	{
-  		$response = json_decode($send->getBody()->getContents());
-
-  		return $response->data;
-  	}
+  	$url = $this->url_baseControl;
+        $data = array(
+            "dia"=> $fecha,
+            "key" => $this->token,
+            "m" => 2
+        );
+        $ch =   curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $response = json_decode(curl_exec($ch));
+        curl_close($ch);
+        if($response->success==false) {
+                return false;
+        }else{
+                return $response->data;
+        }
   }
 
-  public function sendEndPoint($params = null, $headers = null , $method, $url)
+  public function sendEndPoint($params = null, $headers = null , $method, $url )
   {	
   		if ($headers == null) {
   			$headers = [
@@ -279,11 +281,9 @@ class ApiToken {
   			];
   		}
   		$send = new Request($method , $url);
-
-  		return  $this->client->send($send ,  [
-  			'headers' => $headers ,
-  			'json'	=>	$params
-  		]);
+ 
+  		return  $this->client->send($send ,  ['headers' => $headers ,'json'	=>	$params]);
+       
   }
 
   public function getDuplicate($arrayInternet , $value)
@@ -308,7 +308,10 @@ class ApiToken {
 
 
 }	
-
+####################################################################################################################################################
+####################################################################################################################################################
+################################################Ejecución de script#################################################################################
+####################################################################################################################################################
 
 if($_GET['xscc'] == TOKEN_ACCESO){
 
@@ -317,7 +320,7 @@ $apiToken = new ApiToken(URL_BASIC_INTERNET, URL_BASIC_CONTROL, USERNAME , PASSW
 $token = $apiToken->getToken();
 
 #$dia = date("Ymd");
-$dia = "20210808";
+$dia = date("Ymd");
 #1. CONTAR EN CONTROL MAS LA CANTIDAD DE REGISTROS
 $getCountControl = $apiToken->countControl($dia);
 #2.Contar en cpanel internet la cantidad de registros
@@ -349,13 +352,11 @@ if($getCountInternet == false){
         $saveInternet = $apiToken->saveInternet($token , $pagosBefore);
 	   }
     }
-  }
 
-#comparar los valores 
-#Despues de haber registros en el día, compara los valores de controlmas con internet 
-
-if ($getCountControl > $getCountInternet) {
-	#en caso que sea mayor el count en controlmas 
+  }elseif($getCountControl > $getCountInternet) {
+   #comparar los valores 
+   #Despues de haber registros en el día, compara los valores de controlmas con internet 
+	 #en caso que sea mayor el count en controlmas 
 
 	#registros existentes en cPanel Internet
 	$pagosInternet = $apiToken->pagosInternet($token , $dia);
