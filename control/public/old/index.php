@@ -32,7 +32,6 @@ Paramento m 2 para consultar los pagos del dia
 */
 if($_POST['m'] == 2 ){ include('../rutas/pagosdia.php');}
 if($_POST['m'] == 3 ){ include('../rutas/pagosdia.php');}
-if($_POST['m'] == 4){ include('../rutas/contratos.php');}
 }
  
 

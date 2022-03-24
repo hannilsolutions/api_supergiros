@@ -45,6 +45,10 @@ class ApiToken {
 
 	}
 
+	############################################################################
+	#####################################endpoint Cpanel Internet###############
+	############################################################################
+	#Autenticación a la api 
 	public function getToken()
     { 
         $url = $this->url_baseInternet.'auth/login';
@@ -92,6 +96,7 @@ class ApiToken {
 
 
   #Conteo de registros en la base de datos de cpanel
+  #POST
 
   public function countInternet($token , $fecha)
   {
@@ -135,6 +140,7 @@ class ApiToken {
   }
 
   #retorno de registros en cpanel internet
+  #POST
   public function pagosInternet($token , $fecha){
 
   	$url 	= $this->url_baseInternet.'merkas/all';
@@ -179,6 +185,8 @@ class ApiToken {
       }
   }
 
+  #function save rcpagos 
+  #post
   public function saveInternet($token , $params){
 
   				$headers = [
@@ -227,6 +235,63 @@ class ApiToken {
   				
   }
 
+    #consultar recibos de caja en estado 0 y fecha
+	#GET
+	public function QueryByEstadoCero($token)
+	{
+		$headers = [
+			'Accept' => 'application/json',
+			'Content-Type' => 'application/json',
+			'Authorization' => 'Bearer '.$token
+		];
+
+		$url = $this->url_baseInternet.'merkas/count/estado';
+
+		$method = 'GET';
+
+		try {
+			$send = $this->sendEndPoint($json = null, $headers , $method , $url);
+
+			if($send->getStatusCode() == 200)
+			{
+				$reponse = json_decode($send->getBody()->getContents());
+
+				return $response->response;
+			}
+		} catch(\GuzzleHttp\Exeption\RequestException $e){
+      	
+      					$error['error'] = $e->getMessage();
+      	
+      					$error['request'] = $e->getRequest();
+      	
+      				if ($e->hasResponse()) {
+      	
+      					if ($e->getResponse()->getStatusCode() == '400') {
+      	
+      						$error['response'] = $e->getResponse();
+      					}
+      				}
+
+      			}
+		
+	}
+
+	public function sendEndPoint($params = null, $headers = null , $method, $url )
+	{	
+			if ($headers == null) {
+				$headers = [
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json'
+				];
+			}
+			$send = new Request($method , $url);
+   
+			return  $this->client->send($send ,  ['headers' => $headers ,'json'	=>	$params]);
+		 
+	}
+#############################################################################
+#####################Function Controlmas####################################
+#############################################################################
   #Conteo de registros en controlmas
 
   	public function countControl($fecha)
@@ -272,19 +337,93 @@ class ApiToken {
         }
   }
 
-  public function sendEndPoint($params = null, $headers = null , $method, $url )
-  {	
-  		if ($headers == null) {
-  			$headers = [
-  				'Content-Type' => 'application/json',
-  				'Accept' => 'application/json'
-  			];
-  		}
-  		$send = new Request($method , $url);
+
+###############################################################################################
+#############################endpoint Merkas##################################################
+#post
+#generar token
+	public function generateTokenMerkas($token , $keyComercio , $url)
+	{ 
+		 
+		$json = [
+			"create_token"=> $token,
+			"token" => $keyComercio
+		];
+
+		$urlGenerateToken = $url;
+
+		$method = 'POST';
+
+		try {
+			$send = $this->sendEndPoint($json, $headers = null , $method , $urlGenerateToken);
+
+			if($send->getStatusCode() == 200)
+			{
+				$response = json_decode($send->getBody()->getContents());
+
+				return $response->mensaje;
+			}
+		} catch(\GuzzleHttp\Exeption\RequestException $e){
+      	
+      					$error['error'] = $e->getMessage();
+      	
+      					$error['request'] = $e->getRequest();
+      	
+      				if ($e->hasResponse()) {
+      	
+      					if ($e->getResponse()->getStatusCode() == '400') {
+      	
+      						$error['response'] = $e->getResponse();
+      					}
+      				}
+
+      			}
+	}
+	#registrar venta
+	#post
+	public function registrarVenta($params , $url)
+	{
+		 $json = [
+			"usuario_telefono" => $params["usuario_telefono"],
+			"factura_pago_efectivo" => $params["factura_pago_efectivo"],
+			"factura_numero" => $params["factura_numero"],
+			"cajero" => [
+				"usuario_id" => $params["cajero"]
+			],
+			"token" => $params["token"]
+		];
+		$method = "POST";
+
+		try {
+			
+			$send = $this->sendEndPoint($json , $headers = null, $method , $url);
+
+			if($send->getStatusCode() == 200)
+			{
+				$response = json_decode($send->getBody->getContents());
+
+				return $response;
+			}
+
+		} catch(\GuzzleHttp\Exeption\RequestException $e){
+      	
+				$error['error'] = $e->getMessage();
+
+				$error['request'] = $e->getRequest();
+
+			if ($e->hasResponse()) {
+
+				if ($e->getResponse()->getStatusCode() == '400') {
+
+					$error['response'] = $e->getResponse();
+				}
+			}
+
+		}
+	}
+	
+	
  
-  		return  $this->client->send($send ,  ['headers' => $headers ,'json'	=>	$params]);
-       
-  }
 
   public function getDuplicate($arrayInternet , $value)
   {
@@ -313,11 +452,17 @@ class ApiToken {
 ################################################Ejecución de script#################################################################################
 ####################################################################################################################################################
 
-if($_GET['xscc'] == TOKEN_ACCESO){
+if(!empty(TOKEN_ACCESO)){
+#carga constructor de la case, agregar las variables 
+#url Api internet
+#url api control
+#Autenticación API internet
+#Token api Control
 
 $apiToken = new ApiToken(URL_BASIC_INTERNET, URL_BASIC_CONTROL, USERNAME , PASSWORD , TOKEN);
 
-$token = $apiToken->getToken();
+#se Obtiene el token
+#$token = $apiToken->getToken();
 
 #$dia = date("Ymd");
 $dia = date("Ymd");
@@ -393,9 +538,75 @@ if($getCountInternet == false){
 	
 }
 	
-} 
+}
 
-#registrar los nuevos valores en cpanel internet
+#############################################################################################################################
+######################################Registro en Merkas de los las facturas#################################################
+#############################################################################################################################
+#3e1d7ed98e94366975582f41f77a0bc9442a288da87d164bdc9fef66e57de70f
+#TOKEN API 7242b219185a6ecd76e2f0de1a178928
+#anular con endpoint cancelar factura con el listar_facturacion {aliado_merkas_factura_id}
+#end point registar_compra no valida duplicidad de factura
+*/
+	if(ACTIVE){
+		#REALIZAR BUSQUEDA DEL COUNT EN INTERNET DE LOS RECIBOS CARGADOS AL SISTEMA
+		
+		$queryByEstadoCero = $apiToken->QueryByEstadoCero($token);
+
+		if($queryByEstadoCero != "sin registros")
+		{
+			$tokenUniqid = uniqid();
+
+			$generateToken = $apiToken->generateTokenMerkas($tokenUniqid , TOKEN_COMERCIO_MERKAS , ENDPOINT_TOKEN);
+			
+			foreach($queryByEstadoCero as $key)
+			{
+				/**"id": 2723,
+            "id_servicio_rc": "1-146737",
+            "rc": "146737",
+            "valor": 45100,
+            "celular": "3214902250",
+            "estado": 0,
+            "log": "2022-01-15 07:55:03: creado desde servidor",
+            "created_at": "2022-01-15T12:55:03.000000Z",
+            "updated_at": "2022-01-15T12:55:03.000000Z",
+            "fecha": "20220115"*/
+			$registrarVenta ["usuario_telefono"] = $queryByEstadoCero->celular;
+
+			$registrarVenta ["factura_pago_efectivo"] = $queryByEstadoCero->valor;
+
+			$registrarVenta ["factura_numero"] = $queryByEstadoCero->rc;
+
+			$registrarVenta ["cajero"]	= ID_USUARIO;
+
+			$registrarVenta ["token"] = $tokenUniqid;
+
+			$setRegistrarVenta = $apiToken->registrarVenta($registrarVenta , ENDPOINT_REGISTRO_VENTA);
+
+			 #en caso de retornar true, se registra 1 en cpanel true
+			if($setRegistrarVenta == true)
+			{
+				#actualizar pagoMerkas con 1 cargado existosamente
+				$paramUpdate["log"] = $queryByEstadoCero->log.','.date().': registro Existos, servidor merkas devolvio true';
+				$paramUpdate["estado"] = '1';
+				
+			}elseif($setRegistrarVenta == false){
+				#en caso de retornar falso, se registra 2 en cpanel error
+				$paramUpdate["log"] = $queryByEstadoCero->log.','.date().': error false, por parte de servidor Merkas';
+				$paramUpdate["estado"] = '2';
+			}else{
+				#en caso de retornar falso, se registra 2 en cpanel error
+				$paramUpdate["log"] = $queryByEstadoCero->log.','.date().': '.$setRegistrarVenta->mensaje;
+				$paramUpdate["estado"] = '2';
+			}
+
+			$setUpdateRcTrue = updateRcCpanel($paramUpdate , $token)
+
+			}
+		}
+	}
+
+
 }else{
 
 	echo "Error de Token";
