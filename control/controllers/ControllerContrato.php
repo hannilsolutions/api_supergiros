@@ -57,6 +57,7 @@ class ControllerContrato {
                 $data["xml"]                = $resultadoFact["respuesta_final_dian"];
                 $data["qr"]                 = $resultadoFact["url_qr"];
                 $data["factura"]            = $getCliente->factura;
+                $data["refiere"]            = $getCliente->refiere;
                 $data["clientes_razon_social"] = $getCliente->clientes_razon_social;
                 $data["tipo_cliente"]           = $getCliente->tipo_cliente;
                 $data["documento"]              = $getCliente->documento;

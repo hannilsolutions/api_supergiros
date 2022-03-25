@@ -66,6 +66,7 @@ class Contrato extends Config{
         deudas.facturado_fecha,
         deudas.resultado_factura_electronica,
         deudas.factura,
+        deudas.refiere,
         clientes.razon_social as clientes_razon_social,
         clientes.tipo_cliente,
         clientes.documento,
