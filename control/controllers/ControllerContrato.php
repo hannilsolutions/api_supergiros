@@ -75,6 +75,57 @@ class ControllerContrato {
             }
             echo json_encode($result);
         }
+
+        public function findByMunicipio($departamento)
+        {
+            $contrato = new Contrato();
+
+            $getfindByMunicipio = $contrato->findByMunicipio($departamento);
+
+            if ($getfindByMunicipio != false) {
+
+                $result = array("success" => true , "error" =>  false, "data" => []);
+
+                foreach ($getfindByMunicipio as $key) {
+
+                    $data['id_municipio'] = $key->id_municipio;
+
+                    $data['municipio']    = $key->municipio;
+
+                    array_push($result['data'], $data);
+                }
+                 
+            }else{
+                $result = array('success' => true , "error" => false , "data" => "sin registros" );
+            }
+            echo json_encode($result);
+        }
+
+        /*
+        *busqueda de barrios x el municipio
+        */
+        public function findByBarrio($municipio)
+        {
+            $contrato = new Contrato();
+
+            $getfindByBarrio = $contrato->findByBarrio($municipio);
+
+            if($getfindByBarrio != false)
+            {
+                $result = array("success" => true , "error" =>  false, "data" => []);
+
+                foreach ($getfindByBarrio as $key) {
+                    
+                    $data['barrio'] = $key->nombre;
+
+                    array_push($result['data'], $data);
+
+                }
+            }else{
+                $result = array('success' => true , "error" => false , "data" => "sin registros" );
+            }
+            echo json_encode($result);
+        }
     }
 
 $run = new ControllerContrato();
@@ -85,6 +136,12 @@ switch ($_POST["title"]) {
 
     case 'findByFactura':
         $run->findByFactura($_POST['factura'] , $_POST['id_servicio']);
+        break;
+    case 'findByMunicipio':
+        $run->findByMunicipio($_POST['departamento']);
+        break;
+    case 'findByBarrio':
+        $run->findByBarrio($_POST['municipio']);
         break;
     default:
         # code...

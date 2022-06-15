@@ -47,6 +47,54 @@ class Contrato extends Config{
         
     }
 
+    #buscar municipios por id_departament
+    public function findByMunicipio($departamento)
+    {
+        $sql    = "SELECT * FROM lista_municipios WHERE departamento_id = :departamento";
+        try {
+            $conn = self::Connection();
+            $stm  = $conn->prepare($sql);
+            $stm->bindParam(":departamento" , $departamento , PDO::PARAM_INT);
+            $stm->execute();
+            if($stm->rowCount() > 0 )
+            {
+                return $stm->fetchAll(PDO::FETCH_OBJ);
+            }else{
+                return false;
+            }
+        } catch (PDOException $e) {
+            $this->setError($e->getMessage());
+        }
+    }
+
+    ###########
+    ########
+    public function findByBarrio($municipio)
+    {
+        $sql = "SELECT * FROM listas_barrios WHERE id_municipio = :municipio";
+
+        try{
+            $conn = self::Connection();
+
+            $stm = $conn->prepare($sql);
+
+            $stm->bindParam(":municipio" , $municipio , PDO::PARAM_INT);
+
+            $stm->execute();
+
+            if ($stm->rowCount() > 0) {
+                
+                return $stm->fetchAll(PDO::FETCH_OBJ);
+            }else
+            {
+                return false;
+            }
+        }catch(PDOException $e){
+            $this->setError($e->getMessage());
+        }
+    }
+
+
     public function findByFactura($factura, $idServicio)
     {
         $sql = "SELECT 
