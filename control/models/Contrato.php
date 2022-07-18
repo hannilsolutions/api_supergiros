@@ -94,6 +94,30 @@ class Contrato extends Config{
         }
     }
 
+    public function findContratoByBarrio($barrio)
+    {
+        $sql    =   "SELECT id_contrato FROM contratos 
+                        INNER JOIN direcciones ON direcciones.id_direccion = contratos.id_direccion_servicio
+                        WHERE direcciones.barrio = :barrio AND contratos.id_servicio IN (1,2,3,4,5,6,7,8,9) AND contratos.estado IN(1,2)";
+        try {
+            $conn = self::Connection();
+
+            $stm = $conn->prepare($sql);
+
+            $stm->bindParam(":barrio" , $barrio , PDO::PARAM_STR);
+
+            $stm->execute();
+
+            if($stm->rowCount() > 0){
+                return $stm->fetchAll(PDO::FETCH_OBJ);
+            }else{
+                return false;
+            }
+        } catch (PDOException $e) {
+            $this->setError($e->getMessage());
+        }
+    }
+
 
     public function findByFactura($factura, $idServicio)
     {

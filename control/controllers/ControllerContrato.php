@@ -126,6 +126,31 @@ class ControllerContrato {
             }
             echo json_encode($result);
         }
+
+        /*
+        *
+        */
+        public function findContratoByBarrio($barrio)
+        {
+            $contrato = new Contrato();
+
+            $getFindContratoByBarrio = $contrato->findContratoByBarrio($barrio);
+
+            if($getFindContratoByBarrio != false)
+            {
+                $result = array("success" => true, "error" => false, "data" => []);
+
+                foreach ($getFindContratoByBarrio as $key) {
+                    
+                     
+
+                    array_push($result['data'], intval($key->id_contrato));
+                }
+            }else{
+                $result = array('success' => true , "error" => false , "data" => "sin registros" );
+            }
+             echo json_encode($result);
+        }
     }
 
 $run = new ControllerContrato();
@@ -142,6 +167,9 @@ switch ($_POST["title"]) {
         break;
     case 'findByBarrio':
         $run->findByBarrio($_POST['municipio']);
+        break;
+    case 'findContratoByBarrio':
+        $run->findContratoByBarrio($_POST['barrio']);
         break;
     default:
         # code...
